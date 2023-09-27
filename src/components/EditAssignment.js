@@ -42,7 +42,7 @@ function EditAssignment(props) {
     fetch(`${SERVER_URL}/assignment/${assignmentId}`, {
       method: 'PUT', 
       headers: {'Content-Type': 'application/json'}, 
-      body: JSON.stringify(assignmentData);
+      body: JSON.stringify(assignmentData),
     })
     .then((res) => {
       if(res.ok){
