@@ -1,98 +1,81 @@
-import React, { useState } from 'react';
-import {SERVER_URL} from '.../constants';
+import React, { useState, useEffect } from 'react';
+import {SERVER_URL} from '../constants';
 import {Link} from 'react-router-dom';
 
 
 function AddAssignment(props) { 
   const [assignmentName, setAssignmentName] = useState('');
   const [courseId, setCourseId] = useState('');
-  const[dueDate, setDueDate] = useState('');
+  const [dueDate, setDueDate] = useState('');
   const [message, setMessage] = useState('');
-  const[isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // const path = window.location.pathname;  
 
   useEffect(() =>{
-    fetchAssignment();
-  }, []);
+    saveAssignment();
+    }, []);
 
-  const fetchAssignment = ( ) => {
-    setMessage('');
-    console.log("fetchAssignment ");
-    fetch(`${SERVER_URL}/assignment`)
-    .then((response) => response.json())
-    .then((data) => {
-        setAssignment(data);
-        setAssignmentName(data.name);
-        setCourseId(data.courseId);
-        setDueDate(data.dueDate);
-    })
-    .catch(err => {
-      setMessage("Exception. " + err);
-      console.error("fetch assignment error " + err);
-    })
-  }
-
-  const handleSubmit = (e) =>{
-    e.preventDefault(); 
-
-    if(!assignmentName || !courseId || !dueDate){
-      setMessage("Please fill in all fields");
-      return; 
-    }
-
-    const assignmentData = {
-      name: assignmentName, 
-      courseId: courseId,
-      dueDate: dueDate
-    };
-
+    // const saveAssignment = ( ) => {
+    //   setMessage('');
+    //   console.log("saveAssignment ");
+    //   fetch(`${SERVER_URL}/assignment`)
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //       setAssignment(data);
+    //       setAssignmentName(data.name);
+    //       setCourseId(data.courseId);
+    //       setDueDate(data.dueDate);
+    //   })
+    //   .catch(err => {
+    //     setMessage("Exception. " + err);
+    //     console.error("fetch assignment error " + err);
+    //   })
+    // }
 
     const saveAssignment = ( ) => {
       setMessage('');
       console.log("Assignment.save");
-      fetch(`${SERVER_URL}/assignment/${assignmentId}` , 
+      if(!assignmentName || !courseId || !dueDate){
+        setMessage("Please fill in all fields");
+        return; 
+      }
+
+      const assignmentData = {
+        name: assignmentName, 
+        courseId: courseId,
+        dueDate: dueDate
+      };
+
+      fetch(`${SERVER_URL}/assignment` , 
         {
-          method: 'PUT', 
+          method: 'POST', 
           headers:{'Content-Type': 'application/json', }, 
           body: JSON.stringify(assignmentData),
   
         })
         .then(res => {
           if(res.ok){
-            // fetchAssignment(assignmentId);
             setMessage("Assignment Saved");
             setAssignmentName('');
             setCourseId('');
             setDueDate('');
-            setIsDialogOpen(false);
           }else{
             setMessage("Save error. " + res.status);
-            console.err("Error saving assignment = " + res.status);
+            console.error("Error saving assignment = " + res.status);
           }
         })
           .catch(err => {
             setMessage("Exception. " + err);
-            console.err("Save Assignment Exception = " + err);
+            console.error("Save Assignment Exception = " + err);
           });
     };
 
-  }
-
-  
-
-
-   
-
-  // const headers = ['Name', 'Course_Name'];
-
-  // const [isDialogOpen, setIsDialogOpen] = usestate(false);
-  // const handleClick = () =>{
-  //   setIsDialogOpen(true);
-  // };
+    const headers = ['Name', 'Course_id', 'Date'];
 
   return (
       <div>
         <h3>Add Assignment</h3>
-        <form onSubmit={handleSubmit}> 
+        <form onSubmit={saveAssignment}> 
           <div>
             <label htmlFor="assignmentName"> Assignment Name: </label>
             <input
@@ -134,5 +117,4 @@ function AddAssignment(props) {
       </div>
   ); 
 }
-
 export default AddAssignment;
