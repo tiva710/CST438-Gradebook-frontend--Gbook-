@@ -11,7 +11,8 @@ function ListAssignment(props) {
   useEffect(() => {
    // called once after intial render
    fetchAssignments();
-  }, [] )
+  }, [] );
+
  
   const fetchAssignments = () => {
     console.log("fetchAssignments");
@@ -47,15 +48,26 @@ function ListAssignment(props) {
                       <td>
                         <Link to={`/gradeAssignment/${assignments[idx].id}`} >Grade</Link>
                       </td>
-                      <td>Edit</td>
-                      <td>Delete</td>
-                    </tr>
+                      <td><Link to={{
+                        pathname: `/editAssignment/${assignments[idx].id}`,
+                        state:{
+                          assignmentName: assignments[idx].assignmentName,
+                          courseId: assignments[idx].courseId,
+                          dueDate: assignments[idx].dueDate,
+                        },
+                      }}>Edit</Link></td>
+                      <td><Link to={`/editAssignment/${assignments[idx].id}/delete`}>Delete</Link></td>
+                   </tr>
+                   
                   ))}
+                  <tr>
+                    <td><Link to={`/addAssignment`}>Add New Assignment</Link></td>
+                   </tr>
                 </tbody>
               </table>
           </div>
       </div>
     )
-}  
+} 
 
 export default ListAssignment;
