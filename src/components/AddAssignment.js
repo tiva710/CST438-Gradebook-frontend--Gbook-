@@ -1,120 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import {SERVER_URL} from '../constants';
-import {Link} from 'react-router-dom';
+import React, { useState } from 'react';
+import {SERVER_URL} from '../constants'
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+
 
 
 function AddAssignment(props) { 
-  const [assignmentName, setAssignmentName] = useState('');
-  const [courseId, setCourseId] = useState('');
-  const [dueDate, setDueDate] = useState('');
+  const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const[assignment, setAssignment] = useState({assignmentName: '', dueDate:'', courseId: ''});
 
-  // const path = window.location.pathname;  
+  const handleOpen = () => {
+    setMessage('');
+    setAssignment({assignmentName:'', dueDate:'', courseId:''});
+    setOpen(true);
+  };
 
-  useEffect(() =>{
-    saveAssignment();
-    }, []);
+  const handleClose = () => {
+    setOpen(false);
+    // props.onClose();
+  }
 
-    // const saveAssignment = ( ) => {
-    //   setMessage('');
-    //   console.log("saveAssignment ");
-    //   fetch(`${SERVER_URL}/assignment`)
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //       setAssignment(data);
-    //       setAssignmentName(data.name);
-    //       setCourseId(data.courseId);
-    //       setDueDate(data.dueDate);
-    //   })
-    //   .catch(err => {
-    //     setMessage("Exception. " + err);
-    //     console.error("fetch assignment error " + err);
-    //   })
-    // }
+  const handleChange = (event) => {
+    setAssignment({...assignment, [event.target.name]: event.target.value});
+  }
 
-    const saveAssignment = ( ) => {
-      setMessage('');
-      console.log("Assignment.save");
-      if(!assignmentName || !courseId || !dueDate){
-        setMessage("Please fill in all fields");
-        return; 
-      }
 
-      const assignmentData = {
-        name: assignmentName, 
-        courseId: courseId,
-        dueDate: dueDate
-      };
-
+    const addAssignment = ( ) => {
       fetch(`${SERVER_URL}/assignment` , 
         {
           method: 'POST', 
           headers:{'Content-Type': 'application/json', }, 
-          body: JSON.stringify(assignmentData),
-  
+          body: JSON.stringify(assignment),
         })
-        .then(res => {
-          if(res.ok){
+        .then((response) => {
+          if(response.ok){
             setMessage("Assignment Saved");
-            setAssignmentName('');
-            setCourseId('');
-            setDueDate('');
           }else{
-            setMessage("Save error. " + res.status);
-            console.error("Error saving assignment = " + res.status);
+            setMessage("Save error: " + response.status);
+            console.error("Error saving assignment = " + response.status);
           }
         })
-          .catch(err => {
+          .catch((err) => {
             setMessage("Exception. " + err);
             console.error("Save Assignment Exception = " + err);
           });
-    };
-
-    const headers = ['Name', 'Course_id', 'Date'];
+  }
 
   return (
-      <div>
-        <h3>Add Assignment</h3>
-        <form onSubmit={saveAssignment}> 
-          <div>
-            <label htmlFor="assignmentName"> Assignment Name: </label>
-            <input
-              type="text"
-              id="assignmentName"
-              // value={assignmentName}
-              onChange={(e) => setAssignmentName(e.target.value)}
-              required
-              />
-          </div>
-          <div>
-            <label htmlFor="courseId">Course ID: </label>
-            <input 
-              type = "number"
-              id = "courseId"
-              // value={courseId}
-              onChange={(e) => setCourseId(e.target.value)}
-              required
-            />
-          </div>
-          <div> 
-            <label htmlFor="dueDate"> Due Date: </label>
-            <input
-              type = "date"
-              id="dueDate"
-              // value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <button type = "submit">Add Assignment</button>
-          </div>
-        </form>
-        <div>
-          <p>{message}</p>
-        </div>
-        
-      </div>
+    <div>
+      <button type = "button" margin = "auto" onClick={handleOpen}>Add Assignment</button>
+      <Dialog open = {open} onClose={handleClose}>
+        <DialogTitle>New Assignment</DialogTitle>
+        <DialogContent style = {{paddingTop:20}}>
+          <h4>{message}</h4>
+          <TextField autoFocus fullWidth label = "Name" name="assignmentName" onChange={handleChange}/>
+          <TextField fullWidth label = "Due Date" name="dueDate" helperText="yyyy-mm-dd" onChange={handleChange}/>
+          <TextField fullWidth label = "Course ID" name = "courseId" onChange={handleChange}/>
+          
+        </DialogContent>
+        <DialogActions>
+          <Button color="secondary" onClick={handleClose}> Close/Cancel </Button>
+          <Button id = "add" color = "primary" onClick={addAssignment}>Add Assignment</Button>
+        </DialogActions>
+      </Dialog>
+
+      
+    </div>
   ); 
 }
 export default AddAssignment;
