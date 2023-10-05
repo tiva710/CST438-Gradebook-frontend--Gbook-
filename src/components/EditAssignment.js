@@ -1,156 +1,69 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import {SERVER_URL} from '../constants';
-import EditAssignment from './EditAssignment';
+
 
 function EditAssignment(props) { 
   const [message, setMessage] = useState('');
-  const [assignmentName, setAssignmentName] = useState(props.assignmentName);
-  const [courseId, setCourseId] = useState(props.courseId);
-  const [dueDate, setDueDate] = useState(props.dueDate);
+  const [open, setOpen] = useState(false);
+  const[assignment, setassignment] = useState(props.assignment);
 
-  const assignmentId = props.match.params.id;
+  const handleOpen = () => {
+    setMessage('');
+    setOpen(true);
+  };
 
-  // let assignmentId=0;
-  // const path = window.location.pathname; 
-  // const s = /\d+$/.exec(path)[0];
-  // assignmentId=s;
+  const handleClose = () => {
+    setOpen(false);
+    props.onClose();
+  };
 
-  useEffect(() =>{
-    if(props.location.state){
-      const {assignmentName, courseId, dueDate} = props.location.state;
-      setAssignmentName(assignmentName);
-      setCourseId(courseId);
-      setDueDate(dueDate);
-    }else{
-      fetchAssignment();
-    }
-    }, []);
+  const handleChange = (event) => {
+    setassignment({...assignment, [event.target.name]: event.target.value});
+  }
 
-    const fetchAssignment = () => {
-      fetch(`${SERVER_URL}/assignment/${assignmentId}`)
-      .then((response) => response.json())
-      .then((data) => {
-        setAssignmentName(data.name);
-        setCourseId(data.courseId);
-        setDueDate(data.dueDate);
-      })
-      .catch((err) => console.error(err));
-      
 
-    };
-
-    const handleUpdateAssignment = (e) =>{
-      e.preventDefault();
-    
- 
-
-      const assignmentData = {
-        name: assignmentName, 
-        courseId: courseId, 
-        dueDate: dueDate,
-      };
-
-      fetch(`${SERVER_URL}/assignment/${assignmentId}`, {
+    const saveAssignment = () =>{
+      fetch(`${SERVER_URL}/assignment/${assignment.id}`, {
         method: 'PUT', 
         headers: {'Content-Type': 'application/json'}, 
-        body: JSON.stringify(assignmentData),
+        body: JSON.stringify(assignment),
       })
-      .then((res) => {
-        if(res.ok){
+      .then((response) => {
+        if(response.ok){
           setMessage('Assignment Updated Succesfully');
         }else{
-          setMessage('Update Error ' + res.status);
-          console.error("Error updating assingment = " + res.status);
+          setMessage('Update Error ' + response.status);
+          console.error("Error updating assingment = " + response.status);
         }
       })
       .catch(err => {
-        setMessage("Exception. Line 54 " + err.message);
+        setMessage("Exception: " + err.message);
         console.error("Update Assignment Exception = " + err);
       });
   
     }
-    const handleDeleteAssignment = (forceDelete) => {
-
-      const assignmentData = {
-        name: assignmentName, 
-        courseId: courseId, 
-        dueDate: dueDate,
-      };
-
-      if (!forceDelete) {
-        const confirmed = window.confirm("This assignment has grades. Are you sure you want to delete it?");
-        if (!confirmed) {
-          return;
-        }
-      }
-
-      const confirmed = window.confirm(
-        'This assignment has grades. Are you sure you want to delete it?'
-      );
-
- 
-      if(confirmed){
-      setMessage('');
-      console.log("Assignment.delete");
-      fetch(`${SERVER_URL}/assignment/${assignmentId}/delete`, 
-      {
-        method: 'DELETE', 
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(assignmentData), 
-      })
-      .then(res => {
-        if(res.ok || res.status === 400){
-          setMessage("Assignment Deleted");
-          fetchAssignment();
-        }else{
-          setMessage("Delete Error. " + res.status);
-    
-        }
-      })
-      .catch(err =>{
-        setMessage("Exception. Line 81 " + err);
-        console.error("Delete Assignment Exception = " + err);
-      });
-
-    }
-  }
     return (
     <div>
-      <h3> Edit Assignment </h3>
-      <form onSubmit={handleUpdateAssignment}>
-        <div>
-          <label htmlFor="assignmentName">Assignment Name: </label>
-          <input
-            type = "text"
-            id = "assignmentName"
-            value = {assignmentName}
-            onChange={(e) => setAssignmentName(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor = "courseId"> Course ID: </label>
-          <input
-            type = "number"
-            id = "courseId"
-            value = {courseId}
-            onChange={(e) => setCourseId(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="dueDate">Due Date: </label>
-          <input
-            type = "date"
-            id="dueDate"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-        </div>
-        <div>
-          <button type = "submit">Update Assignment</button>
-        </div>
-      </form>
-      <div> <p>{message}</p></div>
-      <button onClick={handleDeleteAssignment}>Delete Assignment</button>
+     <button type = "button" margin = "auto" onClick = {handleOpen}>Edit Assignment</button> 
+     <Dialog open = {open} onClose={handleClose}>
+        <DialogTitle>Edit Assignment</DialogTitle>
+        <DialogContent style={{paddingTop:20}}>
+          <h4>{message}</h4>
+          <TextField fullWidth label = "Id" name = "id" value = {assignment.id} InputProps={{readOnly: true,}} />
+          <TextField autoFocus fullWidth label = "Name" name = "assignmentName" value = {assignment.assignmentName} onChange={handleChange}/>
+          <TextField fullWidth label = "Due Date" name="dueDate" value = {assignment.dueDate} onChange={handleChange}/>
+        </DialogContent>
+        <DialogActions>
+          <Button color = "secondary" onClick={handleClose}>Close/Cancel</Button>
+          <Button color = "primary" onClick={saveAssignment}>Save Changes</Button>
+        </DialogActions>
+     </Dialog>
     </div>
   );  
 }

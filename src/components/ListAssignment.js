@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {SERVER_URL} from '../constants';
 import {Link} from 'react-router-dom';
+import EditAssignment from './EditAssignment';
+import AddAssignment from './AddAssignment';
 
 
 function ListAssignment(props) {
@@ -23,6 +25,26 @@ function ListAssignment(props) {
       setAssignments(data);
      }) 
     .catch(err => console.error(err)); 
+  }
+
+  const deleteAssignment = (event) => {
+    const row_id = event.target.parentNode.parentNode.rowIndex - 1;
+    const id = assignments[row_id].id;
+    console.log("delete assignment "+id);
+    fetch(`${SERVER_URL}/assignment/${id}`, 
+      {  
+        method: 'DELETE', 
+      } 
+    )
+    .then((response) => { 
+      if (response.ok) {
+          setMessage('Assignment deleted.');
+          fetchAssignments();
+      } else {
+          setMessage("Assignment delete failed.");
+      }
+   } )
+  .catch((err) =>  { setMessage('Error. '+err) } );
   }
   
   
@@ -48,23 +70,13 @@ function ListAssignment(props) {
                       <td>
                         <Link to={`/gradeAssignment/${assignments[idx].id}`} >Grade</Link>
                       </td>
-                      <td><Link to={{
-                        pathname: `/editAssignment/${assignments[idx].id}`,
-                        state:{
-                          assignmentName: assignments[idx].assignmentName,
-                          courseId: assignments[idx].courseId,
-                          dueDate: assignments[idx].dueDate,
-                        },
-                      }}>Edit</Link></td>
-                      <td><Link to={`/editAssignment/${assignments[idx].id}/delete`}>Delete</Link></td>
-                   </tr>
-                   
+                      <td><EditAssignment assignment={assignments[idx]} onClose={fetchAssignments} /></td>
+                      <td><button type="button" margin="auto" onClick={deleteAssignment}>Delete</button></td>
+                    </tr>
                   ))}
-                  <tr>
-                    <td><Link to={`/addAssignment`}>Add New Assignment</Link></td>
-                   </tr>
                 </tbody>
               </table>
+              <AddAssignment onClose={fetchAssignments}/>
           </div>
       </div>
     )
