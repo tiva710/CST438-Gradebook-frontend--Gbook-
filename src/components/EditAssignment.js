@@ -56,12 +56,12 @@ function EditAssignment(props) {
         <DialogContent style={{paddingTop:20}}>
           <h4>{message}</h4>
           <TextField fullWidth label = "Id" name = "id" value = {assignment.id} InputProps={{readOnly: true,}} />
-          <TextField autoFocus fullWidth label = "Name" name = "assignmentName" value = {assignment.assignmentName} onChange={handleChange}/>
-          <TextField fullWidth label = "Due Date" name="dueDate" value = {assignment.dueDate} onChange={handleChange}/>
+          <TextField autoFocus fullWidth label = "Name" id = "assignmentName" name = "assignmentName" value = {assignment.assignmentName} onChange={handleChange}/>
+          <TextField fullWidth label = "Due Date" name="dueDate" id="dueDate" value = {assignment.dueDate} onChange={handleChange}/>
         </DialogContent>
         <DialogActions>
           <Button color = "secondary" onClick={handleClose}>Close/Cancel</Button>
-          <Button color = "primary" onClick={saveAssignment}>Save Changes</Button>
+          <Button color = "primary" onClick={saveAssignment} id = "updateButton">Save Changes</Button>
         </DialogActions>
      </Dialog>
     </div>
