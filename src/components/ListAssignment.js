@@ -71,7 +71,7 @@ function ListAssignment(props) {
                         <Link to={`/gradeAssignment/${assignments[idx].id}`} >Grade</Link>
                       </td>
                       <td><EditAssignment assignment={assignments[idx]} onClose={fetchAssignments} /></td>
-                      <td><button type="button" margin="auto" onClick={deleteAssignment}>Delete</button></td>
+                      <td><button id = "deleteButton" type="button" margin="auto" onClick={deleteAssignment}>Delete</button></td>
                     </tr>
                   ))}
                 </tbody>
